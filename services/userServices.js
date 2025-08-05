@@ -463,3 +463,29 @@ exports.activeAccount = asyncHandler(async (req, res, next) => {
 
   res.status(200).json({ message: value, status: 200 });
 });
+
+exports.canAddProductIN = asyncHandler(async (req, res, next) => {
+  const { canaddProductIN } = req.body;
+  const id = req.params.id;
+
+  if (canaddProductIN === undefined || canaddProductIN === "") {
+    return next(new ApiErrors(`canaddProductIN is required`, 400));
+  }
+
+  const userData = await UserModel.findOneAndUpdate(
+    { _id: id },
+    { canaddProductIN },
+    { new: true }
+  );
+
+  if (!userData) {
+    return next(new ApiErrors(`No user found for this UserID: ${id}!`, 404));
+  }
+
+  const value =
+  canaddProductIN === true
+      ? "The account Per can add"
+      : "The account Per can't add";
+
+  res.status(200).json({ message: value, status: 200 });
+});

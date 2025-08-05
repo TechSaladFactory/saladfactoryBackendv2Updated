@@ -308,6 +308,26 @@ const activeAccountValidators = [
     return next();
   },
 ];
+const canaddProductValidators = [
+  param("id").isMongoId().withMessage("Invalid user ID!"),
+
+  body("canaddProduct").notEmpty().withMessage("canaddProduct is required"),
+  body("canaddProduct")
+    .isBoolean()
+    .withMessage("canaddProduct must be boolean ( true or false )"),
+
+  (req, res, next) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      const formattedErrors = errors.array().map((err) => ({
+        message: err.msg,
+        status: 400,
+      }));
+      return res.status(400).json(formattedErrors);
+    }
+    return next();
+  },
+];
 
 module.exports = {
   permissionusertoaddValidators,
@@ -319,4 +339,5 @@ module.exports = {
   addnewuserValidators,
   updateUserPasswordByIDValidators,
   activeAccountValidators,
+  canaddProductValidators
 };

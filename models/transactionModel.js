@@ -4,7 +4,7 @@ const TransactionSchema = new mongoose.Schema({
   productID: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "Product",
-    required: [true, "Product ID is required"]
+    required: [false, "Product ID is required"]
   },
   product_name: {
     type: String,
@@ -13,11 +13,13 @@ const TransactionSchema = new mongoose.Schema({
   type: {
     type: String,
     enum: ["IN", "OUT"],
-    required: [true, "Transaction type is required"]
+    required: [false, "Transaction type is required"]
   },
   quantity: {
     type: Number,
-    required: [true, "Quantity is required"],
+    default: 0,
+
+    required: [false, "Quantity is required"],
     min: [1, "Quantity must be at least 1"]
   },
   unit: {
@@ -30,13 +32,13 @@ const TransactionSchema = new mongoose.Schema({
   },
   supplier: {
     type: String,
-    required: [true, "Supplier name is required"]
+    required: [false, "Supplier name is required"]
 
   },
   userID: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "User",
-    required: [true, "User ID is required"]
+    required: [false, "User ID is required"]
   },
   user_name: {
     type: String,

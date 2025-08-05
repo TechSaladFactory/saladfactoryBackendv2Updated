@@ -14,7 +14,8 @@ const {
   updateUserdeparetmentByID,
   permissionusertoadd,
   permissionusertoremove,
-  activeAccount
+  activeAccount,
+  canAddProductIN
 } = require("../services/userServices");
 //validator imports
 const {
@@ -26,7 +27,8 @@ const {
   ,updateUserDepValidators,
   permissionusertoaddValidators,
   permissionusertoremoveValidators,
-  activeAccountValidators
+  activeAccountValidators,
+  canaddProductValidators
 } = require("../validators/userValidators");
 const router = express.Router();
 
@@ -35,7 +37,7 @@ router.route("/create").post(
   router.route("/perToadd/:id").put(permissionusertoaddValidators,permissionusertoadd)
 router.route("/updateUserdep/:id").put(updateUserDepValidators,updateUserdeparetmentByID)
   router.route("/perToremove/:id").put(permissionusertoremoveValidators,permissionusertoremove)
-
+router.route("/canAddProductIN/:id").put(canAddProductIN);
 router.route("/getAll").get(getUser);
 router.route("/resetpassorwd/:id").put(updateUserPasswordByIDValidators,updateUserPasswordByid)
 router

@@ -12,7 +12,9 @@ exports.getproduct = asyncHandler(async (req, res) => {
   const allproduct = await productModel
     .find({})
     .populate({ path: "unit", select: "name" })
-    .populate({ path: "supplierAccepted", select: "name" });
+    .populate({ path: "supplierAccepted", select: "name" })
+    .populate({ path: "supplierAccepted", select: "name" })
+    .populate({ path: "mainProduct", select: "name" });
   res.status(200).json({
     data: allproduct,
     itemsnumber: allproduct.length,
@@ -27,7 +29,9 @@ exports.getSpecialproductByid = asyncHandler(async (req, res, next) => {
   const productByid = await productModel
     .findById({ _id: id })
     .populate({ path: "unit", select: "name" })
-    .populate({ path: "supplierAccepted", select: "name" });
+    .populate({ path: "supplierAccepted", select: "name" })
+    .populate({ path: "mainProduct", select: "name" });
+
 
   if (!productByid) {
     return next(
@@ -41,20 +45,17 @@ exports.getSpecialproductByid = asyncHandler(async (req, res, next) => {
 //roure >> Post Method
 // /api/product/addcategory
 exports.addproduct = asyncHandler(async (req, res, next) => {
-  const { name, bracode, availableQuantity, unit, supplierAccepted } = req.body;
-
-  if (name === undefined) {
-    return next(new ApiErrors(`name are required !`, 404));
-  } else if (name === "") {
-    return next(new ApiErrors(`name must not be empty !`, 404));
-  } else {
+  const { name, bracode, availableQuantity, unit, supplierAccepted, mainProduct, packSize, expireDate, price, updated, quantity } = req.body;
     const productresponse = await productModel.create({
       name,
-      slug: slugify(name),
       bracode,
       availableQuantity,
       unit,
       supplierAccepted,
+      mainProduct,
+      packSize,
+      updated: [{ expireDate, quantity:availableQuantity }],
+      price
     });
 
     res.status(200).json({
@@ -62,7 +63,88 @@ exports.addproduct = asyncHandler(async (req, res, next) => {
       message: "product is added successfully !",
       status: 200,
     });
+  
+});
+//qty expired 
+
+exports.addqtyAndexpiredByBarcode = asyncHandler(async (req, res, next) => {
+  const { expireDate, quantity, bracode } = req.body;
+
+  const productresponse = await productModel.findOneAndUpdate(
+    { bracode },
+    {
+      $push: {
+        updated: { expireDate, quantity }
+      },
+      $inc: {
+        availableQuantity: quantity
+      }
+    },
+    { new: true }
+  );
+
+  if (!productresponse) {
+    return next(new ApiErrors(`This product with this barcode doesn't exist!`, 404));
   }
+
+  res.status(200).json({
+    data: productresponse,
+    message: "Quantity and expiration date added successfully, and available quantity increased!",
+    status: 200,
+  });
+});
+
+//OUt
+exports.subtractQuantityByBarcode = asyncHandler(async (req, res, next) => {
+  const { bracode, quantityToSubtract } = req.body;
+
+  if (!bracode || !quantityToSubtract || quantityToSubtract <= 0) {
+    return next(new ApiErrors("Barcode and valid quantityToSubtract are required", 400));
+  }
+
+  // 1. هات المنتج حسب الباركود
+  const product = await productModel.findOne({ bracode });
+
+  if (!product) {
+    return next(new ApiErrors("Product not found!", 404));
+  }
+
+  if (product.availableQuantity < quantityToSubtract) {
+    return next(new ApiErrors("Not enough quantity available!", 400));
+  }
+
+  let qtyToSubtract = quantityToSubtract;
+
+  // 2. رتب الـ updated حسب أقرب تاريخ انتهاء
+  product.updated.sort((a, b) => new Date(a.expireDate) - new Date(b.expireDate));
+
+  // 3. امشي على التواريخ و اطرح الكمية تدريجيا
+  for (let i = 0; i < product.updated.length && qtyToSubtract > 0; i++) {
+    let entry = product.updated[i];
+    if (entry.quantity <= qtyToSubtract) {
+      // هتخصم كل الكمية وتخلي الكمية صفر
+      qtyToSubtract -= entry.quantity;
+      entry.quantity = 0;
+    } else {
+      // هتخصم جزء وتسيب الباقي
+      entry.quantity -= qtyToSubtract;
+      qtyToSubtract = 0;
+    }
+  }
+
+  // 4. احذف أي عنصر بقى كميته صفر
+  product.updated = product.updated.filter(entry => entry.quantity > 0);
+
+  // 5. نقص من availableQuantity
+  product.availableQuantity -= quantityToSubtract;
+
+  await product.save();
+
+  res.status(200).json({
+    message: "Quantity subtracted successfully!",
+    data: product,
+    status: 200
+  });
 });
 
 //Update to Special product
@@ -70,24 +152,28 @@ exports.addproduct = asyncHandler(async (req, res, next) => {
 // /api/product/id
 exports.updateproductByID = asyncHandler(async (req, res, next) => {
   const { id } = req.params;
-  const { name, bracode, availableQuantity, unit, supplierAccepted } = req.body;
+  const {  bracode, availableQuantity, unit, supplierAccepted, mainProduct, packSize, expireDate, price } = req.body;
 
   if (!req.file || req.file === undefined || req.file === "") {
     const productAfterUpdated = await productModel
       .findOneAndUpdate(
         { _id: id },
         {
-          name,
-          slug: slugify(name),
           bracode,
           availableQuantity,
           unit,
           supplierAccepted,
+          mainProduct,
+          packSize,
+          expireDate,
+          price
         },
         { new: true },
       )
       .populate({ path: "unit", select: "name" })
-      .populate({ path: "supplierAccepted", select: "name" });
+      .populate({ path: "supplierAccepted", select: "name" })
+      .populate({ path: "mainProduct", select: "name" });
+
     console.log(11);
     if (productAfterUpdated) {
       res.status(200).json({
@@ -103,18 +189,13 @@ exports.updateproductByID = asyncHandler(async (req, res, next) => {
     }
   } else {
     const image = await uploadImage(req, "products", next);
-    console.log(name);
     const productAfterUpdated = await productModel.findOneAndUpdate(
       { _id: id },
-      { name, slug: slugify(name), image },
+      {  image },
       { new: true },
     );
 
-    if (name === undefined) {
-      return next(new ApiErrors("product name required !", 404));
-    } else if (name === "") {
-      return next(new ApiErrors(`product name is empty !`, 404));
-    } else {
+    
       if (!productAfterUpdated) {
         return next(
           new ApiErrors(`No product found for this productID: ${id} !`, 404),
@@ -134,7 +215,7 @@ exports.updateproductByID = asyncHandler(async (req, res, next) => {
         );
       }
     }
-  }
+  
 });
 
 //Delete product
@@ -175,7 +256,9 @@ exports.minQty = asyncHandler(async (req, res, next) => {
   const productAfterUpdated = await productModel
     .findOneAndUpdate({ _id: id }, { minQuantity }, { new: true })
     .populate({ path: "unit", select: "name" })
-    .populate({ path: "supplierAccepted", select: "name" });
+    .populate({ path: "supplierAccepted", select: "name" })
+    .populate({ path: "mainProduct", select: "name" });
+
   console.log(11);
   if (productAfterUpdated) {
     res.status(200).json({
@@ -200,7 +283,9 @@ exports.productByBarCode = asyncHandler(async (req, res, next) => {
   const product = await productModel
     .findOne({ bracode })
     .populate({ path: "unit", select: "name" })
-    .populate({ path: "supplierAccepted", select: "name" });
+    .populate({ path: "supplierAccepted", select: "name" })
+    .populate({ path: "mainProduct", select: "name" });
+
 
   if (!product) {
     return next(
@@ -308,4 +393,40 @@ exports.downloadAllProductsExcel = asyncHandler(async (req, res, next) => {
 
   await workbook.xlsx.write(res);
   res.status(200).end();
+});
+
+
+//getrelatedMainProduct
+exports.getrelatedMainProduct = asyncHandler(async (req, res, next) => {
+  const id = req.params.id;
+
+  const relatedProducts = await productModel.find({
+    mainProduct: id
+  }).populate('unit supplierAccepted mainProduct');
+
+  if (!relatedProducts || relatedProducts.length === 0) {
+    return next(new ApiErrors("لا يوجد منتجات مرتبطة حالياً.", 404));
+  }
+
+  res.status(200).json({
+    data: relatedProducts,
+    status: 200,
+    itemsnumber: relatedProducts.length,
+  });
+});
+
+
+
+exports.getrealtedOrderProduction = asyncHandler(async (req, res) => {
+  const allproduct = await productModel
+    .find({ isorderProduction: true }) // استخدم find بدلاً من findOne
+    .populate({ path: "unit", select: "name" })
+    .populate({ path: "supplierAccepted", select: "name" })
+    .populate({ path: "mainProduct", select: "name" });
+
+  res.status(200).json({
+    data: allproduct,
+    itemsnumber: allproduct.length,
+    status: 200,
+  });
 });

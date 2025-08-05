@@ -11,45 +11,45 @@ const addproductValidators = [
         .notEmpty()
         .withMessage("product bracode is required!"),
 
-    body("availableQuantity")
-        .trim()
-        .notEmpty()
-        .withMessage("product availableQuantity is required!"),
+    // body("availableQuantity")
+    //     .trim()
+    //     .notEmpty()
+    //     .withMessage("product availableQuantity is required!"),
 
-    body("unit")
-        .notEmpty()
-        .withMessage("product unit is required!")
-        .custom(async (value) => {
-            if (!mongoose.Types.ObjectId.isValid(value)) {
-                throw new Error("Invalid unit ID format");
-            }
-            const unit = await UnitModel.findById(value);
-            if (!unit) {
-                throw new Error("Unit not found");
-            }
-            return true;
-        }),
+    // body("unit")
+    //     .notEmpty()
+    //     .withMessage("product unit is required!")
+    //     .custom(async (value) => {
+    //         if (!mongoose.Types.ObjectId.isValid(value)) {
+    //             throw new Error("Invalid unit ID format");
+    //         }
+    //         const unit = await UnitModel.findById(value);
+    //         if (!unit) {
+    //             throw new Error("Unit not found");
+    //         }
+    //         return true;
+    //     }),
 
-    body("supplierAccepted")
-        .notEmpty()
-        .withMessage("product supplierAccepted is required!")
-        .custom(async (value) => {
-            if (!mongoose.Types.ObjectId.isValid(value)) {
-                throw new Error("Invalid supplier ID format");
-            }
-            const supplier = await SupplierModel.findById(value);
-            if (!supplier) {
-                throw new Error("Supplier not found");
-            }
-            return true;
-        }),
+    // body("supplierAccepted")
+    //     .notEmpty()
+    //     .withMessage("product supplierAccepted is required!")
+    //     .custom(async (value) => {
+    //         if (!mongoose.Types.ObjectId.isValid(value)) {
+    //             throw new Error("Invalid supplier ID format");
+    //         }
+    //         const supplier = await SupplierModel.findById(value);
+    //         if (!supplier) {
+    //             throw new Error("Supplier not found");
+    //         }
+    //         return true;
+    //     }),
 
-    body("name")
-        .trim()
-        .notEmpty()
-        .withMessage("product name is required!")
-        .isLength({ min: 2 })
-        .withMessage("product name must be at least 4 characters long"),
+    // body("name")
+    //     .trim()
+    //     .notEmpty()
+    //     .withMessage("product name is required!")
+    //     .isLength({ min: 2 })
+    //     .withMessage("product name must be at least 4 characters long"),
 
     (req, res, next) => {
         const errors = validationResult(req);

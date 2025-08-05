@@ -3,12 +3,13 @@ const app = express();
 const morgan = require("morgan");
 const dotenv = require("dotenv");
 dotenv.config({ path: "config.env" });
+const cloudinary_connection=require("./config/cloudinary")
 
-const cloudinary_connection = require("./config/cloudinary");
 const globalErorr = require("./middlewares/erorrMiddlewares");
 const db_MongoDB = require("./config/database");
 const DepartmentRoutes = require("./routes/departmentRoutes");
 const productRoutes = require("./routes/productRoutes");
+const productOPRoutes = require("./routes/productOPRoutes");
 const userRoutes = require("./routes/userRoutes");
 const ApiErrors = require("./utils/apiErrors");
 const authRoutes = require("./routes/authRoutes");
@@ -16,6 +17,13 @@ const SupplierRoutes = require("./routes/supplierRoutes");
 const UnitRoutes = require("./routes/unitRoutes");
 const emaillerRoutes = require("./routes/emaillerRoute");
 const TransactionRoutes = require("./routes/transactionRoutes");
+const  MainProductRoutes = require("./routes/mainProductRoutes");
+const  FatwraRoutes = require("./routes/fatwraRoutes");
+const  BranchRoutes = require("./routes/branchRoutes");
+const  OrderProductionRoutes = require("./routes/orderProductionRoutes");
+const  MainProductOPRoutes = require("./routes/mainProductOPRoutes");
+const  ProductionRoutes = require("./routes/productionRoutes");
+
 const cors = require("cors");
 var compression = require("compression");
 
@@ -47,8 +55,17 @@ app.use(`${basepathApi}/department`, DepartmentRoutes);
 app.use(`${basepathApi}/supplier`, SupplierRoutes);
 app.use(`${basepathApi}/unit`, UnitRoutes);
 app.use(`${basepathApi}/product`, productRoutes);
+app.use(`${basepathApi}/productOP`, productOPRoutes);
 app.use(`${basepathApi}/transaction`, TransactionRoutes);
 app.use(`${basepathApi}/email`, emaillerRoutes);
+app.use(`${basepathApi}/mainProduct`, MainProductRoutes);
+app.use(`${basepathApi}/mainProductOP`, MainProductOPRoutes);
+app.use(`${basepathApi}/fatwra`, FatwraRoutes);
+app.use(`${basepathApi}/branch`, BranchRoutes);
+app.use(`${basepathApi}/orderProduction`, OrderProductionRoutes);
+app.use(`${basepathApi}/Production`,ProductionRoutes );
+
+
 
 //errors
 app.all("*", (req, res, next) => {

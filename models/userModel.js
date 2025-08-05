@@ -41,6 +41,7 @@ const userSchema = new mongoose.Schema(
     //permission
     canAddProduct: { type: Boolean, default: false },
     canRemoveProduct: { type: Boolean, default: false },
+    canaddProductIN: { type: Boolean, default: false },
 
     role: {
       type: String,

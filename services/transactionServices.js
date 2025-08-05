@@ -19,7 +19,8 @@ exports.getAllTransactions = asyncHandler(async (req, res) => {
     .populate("productID")
     .populate("unit")
     .populate("department")
-    .populate("userID");
+    .populate("userID")
+    .populate({ path: "product", select: "name mainProduct", populate: { path: "mainProduct", select: "name" } });
 
   res.status(200).json({
     data: allTransactions,
@@ -151,7 +152,7 @@ exports.addTransaction = asyncHandler(async (req, res, next) => {
 
   // تحديث الكمية بناءً على نوع المعاملة
   if (type === "IN") {
-    product.availableQuantity += quantity;
+    // product.availableQuantity += quantity;
   } else if (type === "OUT") {
     if (product.availableQuantity < quantity) {
       return next(
@@ -161,13 +162,12 @@ exports.addTransaction = asyncHandler(async (req, res, next) => {
         ),
       );
     }
-    product.availableQuantity -= quantity;
+    // product.availableQuantity -= quantity;
   } else {
     return next(new ApiErrors("Invalid transaction type", 400));
   }
 
   // حفظ المنتج بعد التعديل
-  await product.save();
 
   // إذا الكمية وصلت للحد الأدنى أو أقل، ابعت إيميل تنبيه
   if (product.availableQuantity <= product.minQuantity) {
@@ -235,8 +235,7 @@ exports.addTransactionwhenaddNewProduct = asyncHandler(
           ),
         );
       }
-      product.availableQuantity -= quantity;
-      await product.save();
+      // product.availableQuantity -= quantity;
 
       // إذا الكمية وصلت للحد الأدنى أو أقل، ابعت إيميل تنبيه
       if (product.availableQuantity <= product.minQuantity) {

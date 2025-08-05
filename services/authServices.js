@@ -268,7 +268,6 @@ exports.allwoedTo = (...roles) =>
   });
 
 exports.getuser = asyncHandler(async (req, res, next) => {
-  // تحقق من وجود Authorization header
   const authHeader = req.headers.authorization;
   if (!authHeader || !authHeader.startsWith("Bearer ")) {
     return next(new ApiErrors(`Header must contain token!`, 404));
@@ -305,6 +304,7 @@ exports.getuser = asyncHandler(async (req, res, next) => {
     lastLogin: userData.lastLogin,
     canAddProduct: userData.canAddProduct,
     canRemoveProduct: userData.canRemoveProduct,
+    canaddProductIN:userData.canaddProductIN
   });
 });
 

@@ -7,6 +7,7 @@ const { productModel } = require("../models/productModel"); // تأكد أنك �
 const { UserModel } = require("../models/userModel");
 const { UnitModel } = require("../models/unitModel");
 const { DepartmentModel } = require("../models/departmentModel");
+const { SupplierModel } = require("../models/supplierModel");
 const nodemailer = require("nodemailer");
 
 const ExcelJS = require("exceljs");
@@ -20,7 +21,7 @@ exports.getAllTransactions = asyncHandler(async (req, res) => {
     .populate("unit")
     .populate("department")
     .populate("userID")
-    .populate({ path: "product", select: "name mainProduct", populate: { path: "mainProduct", select: "name" } });
+   .populate("supplier");
 
   res.status(200).json({
     data: allTransactions,
@@ -37,7 +38,7 @@ exports.getTransactionByID = asyncHandler(async (req, res, next) => {
     .populate("productID")
     .populate("unit")
     .populate("department")
-    .populate("userID");
+    .populate("userID").populate("supplier");
 
   if (!transaction) {
     return next(new ApiErrors(`No transaction found with ID: ${id}`, 404));
@@ -130,25 +131,27 @@ async function sendLowQuantityEmail(product) {
 }
 
 exports.addTransaction = asyncHandler(async (req, res, next) => {
-  const { productID, type, quantity, userID, unit, department } = req.body;
+  const { productID, type, quantity, userID, unit, department,supplier } = req.body;
 
   // تحقق من الحقول المطلوبة
-  if (!productID || !type || !quantity || !userID || !unit || !department) {
+  if (!productID || !type || !quantity || !userID || !unit ) {
     return next(new ApiErrors("All required fields must be provided!", 400));
   }
 
   // تحقق من وجود الكيانات في قواعد البيانات
-  const [product, user, unitDoc, departmentDoc] = await Promise.all([
+  const [product, user, unitDoc, departmentDoc,supplierDoc] = await Promise.all([
     productModel.findById(productID),
     UserModel.findById(userID),
     UnitModel.findById(unit),
     DepartmentModel.findById(department),
+    SupplierModel.findById(supplier),
   ]);
 
   if (!product) return next(new ApiErrors("Product not found!", 404));
   if (!user) return next(new ApiErrors("User not found!", 404));
   if (!unitDoc) return next(new ApiErrors("Unit not found!", 404));
   if (!departmentDoc) return next(new ApiErrors("Department not found!", 404));
+  if (!supplierDoc) return next(new ApiErrors("Supplier not found!", 404));
 
   // تحديث الكمية بناءً على نوع المعاملة
   if (type === "IN") {

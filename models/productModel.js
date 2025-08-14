@@ -63,7 +63,12 @@ const ProductShema = mongoose.Schema({
                  min: [0, "Quantity must be at least 1"],
                 default:0
                 //
-            }
+            },
+            priceIN: {
+                type: Number,
+                required: false,
+
+            },
         }
     ],
 

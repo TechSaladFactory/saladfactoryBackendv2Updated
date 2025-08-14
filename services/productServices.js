@@ -68,17 +68,18 @@ exports.addproduct = asyncHandler(async (req, res, next) => {
 //qty expired 
 
 exports.addqtyAndexpiredByBarcode = asyncHandler(async (req, res, next) => {
-  const { expireDate, quantity, bracode } = req.body;
+  const { expireDate, quantity, bracode ,priceIN } = req.body;
 
   const productresponse = await productModel.findOneAndUpdate(
-    { bracode },
+    { bracode},
     {
       $push: {
-        updated: { expireDate, quantity }
+        updated: { expireDate, quantity,priceIN }
       },
       $inc: {
         availableQuantity: quantity
-      }
+      },
+      price:priceIN
     },
     { new: true }
   );

@@ -31,8 +31,8 @@ const TransactionSchema = new mongoose.Schema({
     ref: "Department"
   },
   supplier: {
-    type: String,
-    required: [false, "Supplier name is required"]
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Supplier"
 
   },
   userID: {
@@ -47,6 +47,9 @@ const TransactionSchema = new mongoose.Schema({
   date: {
     type: Date,
     default: Date.now
+  },
+  packSize:{
+    type:String,
   },
   note: {
     type: String,

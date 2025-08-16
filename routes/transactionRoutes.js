@@ -22,7 +22,7 @@ const router = express.Router();
 router.get("/getAll", getAllTransactions);
 router.post("/addwhenaddNewProduct",addTransactionwhenaddNewProduct)
 router.get("/:id", idValidator, getTransactionByID);
-router.post("/add", addTransactionValidator, addTransaction);
+router.post("/add", addTransaction);
 router.put("/:id", updateTransactionValidator, updateTransaction);
 router.delete("/:id", idValidator, deleteTransaction);
 router.route('/export/:id').get(exportTransactionToExcel);

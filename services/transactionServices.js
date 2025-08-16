@@ -17,11 +17,9 @@ const ExcelJS = require("exceljs");
 exports.getAllTransactions = asyncHandler(async (req, res) => {
   const filter = searchByname(req.query);
   const allTransactions = await TransactionModel.find(filter)
-    .populate("productID")
-    .populate("unit")
-    .populate("department")
-    .populate("userID")
-   .populate("supplier");
+  .populate("productID")
+  .populate("userID")
+  .populate("supplier");
 
   res.status(200).json({
     data: allTransactions,
@@ -36,9 +34,8 @@ exports.getTransactionByID = asyncHandler(async (req, res, next) => {
   const { id } = req.params;
   const transaction = await TransactionModel.findById(id)
     .populate("productID")
-    .populate("unit")
-    .populate("department")
-    .populate("userID").populate("supplier");
+    .populate("userID")
+    .populate("supplier");
 
   if (!transaction) {
     return next(new ApiErrors(`No transaction found with ID: ${id}`, 404));
@@ -131,63 +128,115 @@ async function sendLowQuantityEmail(product) {
 }
 
 exports.addTransaction = asyncHandler(async (req, res, next) => {
-  const { productID, type, quantity, userID, unit, department,supplier } = req.body;
+  const {
+    productID,
+    type,
+    quantity,
+    userID,
+    supplier,
+    price,
+    packSize,
+    note,
+  } = req.body;
 
-  // تحقق من الحقول المطلوبة
-  if (!productID || !type || !quantity || !userID || !unit ) {
-    return next(new ApiErrors("All required fields must be provided!", 400));
+  if (!type || !userID) {
+    return next(new ApiErrors("Type and UserID are required!", 400));
   }
 
-  // تحقق من وجود الكيانات في قواعد البيانات
-  const [product, user, unitDoc, departmentDoc,supplierDoc] = await Promise.all([
-    productModel.findById(productID),
-    UserModel.findById(userID),
-    UnitModel.findById(unit),
-    DepartmentModel.findById(department),
-    SupplierModel.findById(supplier),
-  ]);
-
-  if (!product) return next(new ApiErrors("Product not found!", 404));
+  // تأكيد وجود المستخدم
+  const user = await UserModel.findById(userID);
   if (!user) return next(new ApiErrors("User not found!", 404));
-  if (!unitDoc) return next(new ApiErrors("Unit not found!", 404));
-  if (!departmentDoc) return next(new ApiErrors("Department not found!", 404));
-  if (!supplierDoc) return next(new ApiErrors("Supplier not found!", 404));
 
-  // تحديث الكمية بناءً على نوع المعاملة
-  if (type === "IN") {
-    // product.availableQuantity += quantity;
-  } else if (type === "OUT") {
-    if (product.availableQuantity < quantity) {
+  // ============ INEXIST ============
+  if (type === "INEXIST") {
+    if (!quantity || !price || !supplier) {
       return next(
-        new ApiErrors(
-          `You can't be OUT, available quantity is only ${product.availableQuantity}`,
-          400,
-        ),
+        new ApiErrors("Quantity, Price and Supplier are required for INEXIST!", 400)
       );
     }
-    // product.availableQuantity -= quantity;
-  } else {
-    return next(new ApiErrors("Invalid transaction type", 400));
+
+    const supplierDoc = await SupplierModel.findById(supplier);
+    if (!supplierDoc) return next(new ApiErrors("Supplier not found!", 404));
+
+    const newTransaction = await TransactionModel.create({
+      type,
+      quantity,
+      price,
+      userID,
+      supplier,
+      packSize: packSize || "لم يتم تحديد حجم العبوة",
+      note,
+    });
+
+    return res.status(201).json({
+      data: newTransaction,
+      message: "INEXIST transaction created successfully",
+    });
   }
 
-  // حفظ المنتج بعد التعديل
-
-  // إذا الكمية وصلت للحد الأدنى أو أقل، ابعت إيميل تنبيه
-  if (product.availableQuantity <= product.minQuantity) {
-    await sendLowQuantityEmail(product);
+  // باقي الحالات لازم ProductID
+  if (!productID) {
+    return next(new ApiErrors("ProductID is required for IN/OUT transactions!", 400));
   }
 
-  // إنشاء المعاملة
+  const product = await productModel.findById(productID);
+  if (!product) return next(new ApiErrors("Product not found!", 404));
+
+  // ============ OUT ============
+  if (type === "OUT") {
+    if (!quantity  || !supplier) {
+      return next(
+        new ApiErrors("Quantity and Supplier are required for OUT!", 400)
+      );
+    }
+
+    const [ supplierDoc] = await Promise.all([
+      SupplierModel.findById(supplier),
+    ]);
+
+    if (!supplierDoc) return next(new ApiErrors("Supplier not found!", 404));
+
+    // if (product.availableQuantity < quantity) {
+    //   return next(
+    //     new ApiErrors(`Not enough stock, available: ${product.availableQuantity}`, 400)
+    //   );
+    // }
+
+    // product.availableQuantity -= Number(quantity);
+    // await product.save();
+  }
+
+  // ============ IN ============
+  if (type === "IN") {
+    // لو quantity مش مبعوتة نخليها 0
+    // const q = quantity ? Number(quantity) : 0;
+    // product.availableQuantity += q;
+    // await product.save();
+
+    if (product.availableQuantity <= product.minQuantity) {
+      await sendLowQuantityEmail(product);
+    }
+  }
+
+  // تسجيل العملية
   const newTransaction = await TransactionModel.create({
-    ...req.body,
+    productID,
+    type,
+    quantity: quantity || 0,
+    userID,
+    supplier,
+    price: price || 0,
+    packSize: packSize || 1,
+    note,
   });
 
-  res.status(200).json({
+  res.status(201).json({
     data: newTransaction,
-    message: "Transaction added successfully!",
-    status: 200,
+    message: "Transaction created successfully",
   });
 });
+
+
 //add tran in not inc for product
 exports.addTransactionwhenaddNewProduct = asyncHandler(
   async (req, res, next) => {

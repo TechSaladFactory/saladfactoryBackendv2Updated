@@ -171,6 +171,7 @@ exports.addTransaction = asyncHandler(async (req, res, next) => {
     }
 
     const newTransaction = await TransactionModel.create({
+      productID,
       type,
       quantity,
       price,

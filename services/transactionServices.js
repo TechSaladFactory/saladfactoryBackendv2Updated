@@ -26,7 +26,8 @@ const allTransactions = await TransactionModel.find(filter)
     ]
   })
   .populate("userID")
-  .populate("supplier"); 
+  .populate("supplier")
+  .lean();
 
 
   res.status(200).json({

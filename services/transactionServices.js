@@ -135,7 +135,6 @@ async function sendLowQuantityEmail(product) {
     throw error; // إعادة رمي الخطأ للتعامل معه في المستوى الأعلى إذا لزم الأمر
   }
 }
-
 exports.addTransaction = asyncHandler(async (req, res, next) => {
   const {
     productID,
@@ -152,9 +151,16 @@ exports.addTransaction = asyncHandler(async (req, res, next) => {
     return next(new ApiErrors("Type and UserID are required!", 400));
   }
 
-  // تأكيد وجود المستخدم
+  // ✅ تأكيد وجود المستخدم
   const user = await UserModel.findById(userID);
   if (!user) return next(new ApiErrors("User not found!", 404));
+
+  // ✅ لو فيه supplier نتأكد من وجوده
+  let supplierDoc = null;
+  if (supplier) {
+    supplierDoc = await SupplierModel.findById(supplier);
+    if (!supplierDoc) return next(new ApiErrors("Supplier not found!", 404));
+  }
 
   // ============ INEXIST ============
   if (type === "INEXIST") {
@@ -163,9 +169,6 @@ exports.addTransaction = asyncHandler(async (req, res, next) => {
         new ApiErrors("Quantity, Price and Supplier are required for INEXIST!", 400)
       );
     }
-
-    const supplierDoc = await SupplierModel.findById(supplier);
-    if (!supplierDoc) return next(new ApiErrors("Supplier not found!", 404));
 
     const newTransaction = await TransactionModel.create({
       type,
@@ -183,7 +186,7 @@ exports.addTransaction = asyncHandler(async (req, res, next) => {
     });
   }
 
-  // باقي الحالات لازم ProductID
+  // ✅ باقي الحالات لازم productID
   if (!productID) {
     return next(new ApiErrors("ProductID is required for IN/OUT transactions!", 400));
   }
@@ -193,31 +196,25 @@ exports.addTransaction = asyncHandler(async (req, res, next) => {
 
   // ============ OUT ============
   if (type === "OUT") {
-    if (!quantity  || !supplier) {
+    if (!quantity || !supplier) {
       return next(
         new ApiErrors("Quantity and Supplier are required for OUT!", 400)
       );
     }
 
-    const [ supplierDoc] = await Promise.all([
-      SupplierModel.findById(supplier),
-    ]);
-
-    if (!supplierDoc) return next(new ApiErrors("Supplier not found!", 404));
-
+    // هنا تقدر تضيف شرط الخصم من الكمية لو محتاج
     // if (product.availableQuantity < quantity) {
     //   return next(
     //     new ApiErrors(`Not enough stock, available: ${product.availableQuantity}`, 400)
     //   );
     // }
-
     // product.availableQuantity -= Number(quantity);
     // await product.save();
   }
 
   // ============ IN ============
   if (type === "IN") {
-    // لو quantity مش مبعوتة نخليها 0
+    // هنا تقدر تزود الكمية لو حابب
     // const q = quantity ? Number(quantity) : 0;
     // product.availableQuantity += q;
     // await product.save();
@@ -227,7 +224,7 @@ exports.addTransaction = asyncHandler(async (req, res, next) => {
     }
   }
 
-  // تسجيل العملية
+  // ✅ تسجيل العملية
   const newTransaction = await TransactionModel.create({
     productID,
     type,
@@ -244,7 +241,6 @@ exports.addTransaction = asyncHandler(async (req, res, next) => {
     message: "Transaction created successfully",
   });
 });
-
 
 //add tran in not inc for product
 exports.addTransactionwhenaddNewProduct = asyncHandler(

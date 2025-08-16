@@ -16,10 +16,18 @@ const ExcelJS = require("exceljs");
 // Route >> GET /api/transaction/getAll
 exports.getAllTransactions = asyncHandler(async (req, res) => {
   const filter = searchByname(req.query);
-  const allTransactions = await TransactionModel.find(filter)
-  .populate("productID")
+const allTransactions = await TransactionModel.find(filter)
+  .populate({
+    path: "productID",
+    populate: [
+      { path: "unit" },
+      { path: "supplierAccepted" },
+      { path: "mainProduct" }
+    ]
+  })
   .populate("userID")
-  .populate("supplier");
+  .populate("supplier"); 
+
 
   res.status(200).json({
     data: allTransactions,

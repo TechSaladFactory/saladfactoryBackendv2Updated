@@ -489,3 +489,88 @@ exports.canAddProductIN = asyncHandler(async (req, res, next) => {
 
   res.status(200).json({ message: value, status: 200 });
 });
+
+
+
+// ✅ السماح أو منع المستخدم من "إنتاج منتج"
+exports.canProduction = asyncHandler(async (req, res, next) => {
+  const { canProduction } = req.body;
+  const id = req.params.id;
+
+  if (canProduction === undefined || canProduction === "") {
+    return next(new ApiErrors(`canProduction is required`, 400));
+  }
+
+  const userData = await UserModel.findOneAndUpdate(
+    { _id: id },
+    { canProduction },
+    { new: true }
+  );
+
+  if (!userData) {
+    return next(new ApiErrors(`No user found for this UserID: ${id}!`, 404));
+  }
+
+  const value =
+    canProduction === true
+      ? "The account can produce products"
+      : "The account can't produce products";
+
+  res.status(200).json({ message: value, status: 200 });
+});
+
+
+// ✅ السماح أو منع المستخدم من "طلب إنتاج"
+exports.canOrderProduction = asyncHandler(async (req, res, next) => {
+  const { canOrderProduction } = req.body;
+  const id = req.params.id;
+
+  if (canOrderProduction === undefined || canOrderProduction === "") {
+    return next(new ApiErrors(`canOrderProduction is required`, 400));
+  }
+
+  const userData = await UserModel.findOneAndUpdate(
+    { _id: id },
+    { canOrderProduction },
+    { new: true }
+  );
+
+  if (!userData) {
+    return next(new ApiErrors(`No user found for this UserID: ${id}!`, 404));
+  }
+
+  const value =
+    canOrderProduction === true
+      ? "The account can request production"
+      : "The account can't request production";
+
+  res.status(200).json({ message: value, status: 200 });
+});
+
+
+// ✅ السماح أو منع المستخدم من "الاستلام"
+exports.canReceiveProduct = asyncHandler(async (req, res, next) => {
+  const { canReceive } = req.body;
+  const id = req.params.id;
+
+  if (canReceive === undefined || canReceive === "") {
+    return next(new ApiErrors(`canReceive is required`, 400));
+  }
+
+  const userData = await UserModel.findOneAndUpdate(
+    { _id: id },
+    { canReceive },
+    { new: true }
+  );
+
+  if (!userData) {
+    return next(new ApiErrors(`No user found for this UserID: ${id}!`, 404));
+  }
+
+  const value =
+    canReceive === true
+      ? "The account can receive products"
+      : "The account can't receive products";
+
+  res.status(200).json({ message: value, status: 200 });
+});

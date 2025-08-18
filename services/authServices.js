@@ -304,7 +304,10 @@ exports.getuser = asyncHandler(async (req, res, next) => {
     lastLogin: userData.lastLogin,
     canAddProduct: userData.canAddProduct,
     canRemoveProduct: userData.canRemoveProduct,
-    canaddProductIN:userData.canaddProductIN
+    canaddProductIN:userData.canaddProductIN,
+    canProduction:userData.canProduction,
+    canOrderProduction:userData.canOrderProduction,
+    canReceive:userData.canReceive
   });
 });
 

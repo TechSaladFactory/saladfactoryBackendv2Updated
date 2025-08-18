@@ -15,7 +15,10 @@ const {
   permissionusertoadd,
   permissionusertoremove,
   activeAccount,
-  canAddProductIN
+  canAddProductIN,
+  canProduction,
+  canOrderProduction,
+  canReceiveProduct,
 } = require("../services/userServices");
 //validator imports
 const {
@@ -47,6 +50,15 @@ router
   .delete(
     deleteuserByIDValidators,deleteUserByID);
     router.route("/activeAcouunt/:id").put(activeAccountValidators,activeAccount)
+
+
+    router.put("/canProduction/:id", canProduction);
+
+    // ✅ السماح أو منع المستخدم من "طلب إنتاج"
+    router.put("/canOrderProduction/:id/", canOrderProduction);
+    
+    // ✅ السماح أو منع المستخدم من "الاستلام"
+    router.put("/canReceiveProduct/:id", canReceiveProduct);
 
 module.exports = router;
 

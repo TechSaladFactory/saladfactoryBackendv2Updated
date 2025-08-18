@@ -43,6 +43,10 @@ const userSchema = new mongoose.Schema(
     canRemoveProduct: { type: Boolean, default: false },
     canaddProductIN: { type: Boolean, default: false },
 
+    canProduction: { type: Boolean, default: false },
+    canOrderProduction: { type: Boolean, default: false },
+    canReceive: { type: Boolean, default: false },
+
     role: {
       type: String,
       enum: ["user", "admin"],

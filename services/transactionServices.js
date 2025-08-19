@@ -145,6 +145,7 @@ exports.addTransaction = asyncHandler(async (req, res, next) => {
     price,
     packSize,
     note,
+    expiredDate
   } = req.body;
 
   if (!type || !userID) {

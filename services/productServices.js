@@ -153,71 +153,34 @@ exports.subtractQuantityByBarcode = asyncHandler(async (req, res, next) => {
 // /api/product/id
 exports.updateproductByID = asyncHandler(async (req, res, next) => {
   const { id } = req.params;
-  const {  bracode, availableQuantity, unit, supplierAccepted, mainProduct, packSize, expireDate, price } = req.body;
 
-  if (!req.file || req.file === undefined || req.file === "") {
-    const productAfterUpdated = await productModel
-      .findOneAndUpdate(
-        { _id: id },
-        {
-          bracode,
-          availableQuantity,
-          unit,
-          supplierAccepted,
-          mainProduct,
-          packSize,
-          expireDate,
-          price
-        },
-        { new: true },
-      )
-      .populate({ path: "unit", select: "name" })
-      .populate({ path: "supplierAccepted", select: "name" })
-      .populate({ path: "mainProduct", select: "name" });
+  // ناخد كل البيانات اللي جايه في الـ body
+  const updateFields = req.body;
 
-    console.log(11);
-    if (productAfterUpdated) {
-      res.status(200).json({
-        message: "product name is updated successfully !",
-        status: 200,
-        data: productAfterUpdated,
-      });
-    }
-    if (!productAfterUpdated) {
-      return next(
-        new ApiErrors(`No product found for this productID: ${id} !`, 404),
-      );
-    }
-  } else {
+  // لو جت صورة مع الريكوست (في حالة اختيارية)
+  if (req.file) {
     const image = await uploadImage(req, "products", next);
-    const productAfterUpdated = await productModel.findOneAndUpdate(
-      { _id: id },
-      {  image },
-      { new: true },
-    );
+    updateFields.image = image;
+  }
 
-    
-      if (!productAfterUpdated) {
-        return next(
-          new ApiErrors(`No product found for this productID: ${id} !`, 404),
-        );
-      }
+  // تحديث المنتج بالبيانات الجديدة فقط
+  const productAfterUpdated = await productModel
+    .findOneAndUpdate({ _id: id }, updateFields, { new: true })
+    .populate({ path: "unit", select: "name" })
+    .populate({ path: "supplierAccepted", select: "name" })
+    .populate({ path: "mainProduct", select: "name" });
 
-      if (productAfterUpdated) {
-        res.status(200).json({
-          message: "product name is updated successfully !",
-          status: 200,
-          data: productAfterUpdated,
-        });
-      }
-      if (!productAfterUpdated) {
-        return next(
-          new ApiErrors(`No product found for this productID: ${id} !`, 404),
-        );
-      }
-    }
-  
+  if (!productAfterUpdated) {
+    return next(new ApiErrors(`No product found for this productID: ${id} !`, 404));
+  }
+
+  res.status(200).json({
+    message: "Product is updated successfully!",
+    status: 200,
+    data: productAfterUpdated,
+  });
 });
+
 
 //Delete product
 //roure >> Delete Method

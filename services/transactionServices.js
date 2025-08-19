@@ -175,6 +175,7 @@ exports.addTransaction = asyncHandler(async (req, res, next) => {
       type,
       quantity,
       price,
+      expiredDate,
       userID,
       supplier,
       packSize: packSize || "لم يتم تحديد حجم العبوة",

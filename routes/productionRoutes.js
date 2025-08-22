@@ -10,7 +10,10 @@ const {
     deletependingrequestByID,
     deleteaccpetedProductionByID,
     updatePendingRequestQtyByID,
-    updateProductionQty
+    updateProductionQty,
+    updateHistoryAndSync,
+    getAllHistory,
+    deleteHistoryAndSync
   } = require("../services/productionServices");
 
 // المستخدم يرسل طلبات
@@ -30,5 +33,15 @@ router.route("/Qtyproduction/:id").put(updateProductionQty)
 
 // عرض المنتجات المعتمدة (اختياري)
 router.route("/approved").get(getApprovedProductions);
+//History
+
+
+
+// تعديل عملية في History ومزامنتها مع الإنتاج
+router.route("/history/:historyId").put(updateHistoryAndSync);
+
+// عرض كل السجلات في History
+router.route("/history").get(getAllHistory);
+router.route("/deletehistory/:historyId").delete(deleteHistoryAndSync);
 
 module.exports = router;

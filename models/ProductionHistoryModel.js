@@ -19,7 +19,7 @@ const productionHistorySchema = new mongoose.Schema({
   branch: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "Branch",
-    required: true,
+    required: false,
   },
   action: {
     type: String,

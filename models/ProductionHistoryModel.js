@@ -21,6 +21,11 @@ const productionHistorySchema = new mongoose.Schema({
     ref: "Branch",
     required: false,
   },
+  isSend: {
+    type: Boolean,
+    required: true,
+    default:false
+  },
   action: {
     type: String,
     default: "create", // create أو update

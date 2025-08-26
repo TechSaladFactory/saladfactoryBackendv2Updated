@@ -13,8 +13,14 @@ const productionHistorySchema = new mongoose.Schema({
         required: true,
         min: 0,
       },
+   
     },
   ],
+  branch: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Branch",
+    required: true,
+  },
   action: {
     type: String,
     default: "create", // create أو update

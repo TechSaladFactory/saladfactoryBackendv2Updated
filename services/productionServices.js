@@ -358,7 +358,7 @@ exports.updateHistoryAndSync = asyncHandler(async (req, res, next) => {
 // 🟢 عرض كل History
 exports.getAllHistory = asyncHandler(async (req, res) => {
   const history = await ProductionHistoryModel.find()
-    .populate("items.product", "name");
+    .populate("items.product", "name").populate("branch","name");
 
   res.status(200).json({
     data: history,
@@ -370,7 +370,7 @@ exports.getAllHistory = asyncHandler(async (req, res) => {
 
 // 🟢 إرسال طلب إنتاج (User أو Admin)
 exports.sendProductionRequests = asyncHandler(async (req, res) => {
-  const { items, isAdmin } = req.body;
+  const { items, isAdmin ,branch} = req.body;
 
   if (!Array.isArray(items) || items.length === 0) {
     return res.status(400).json({ message: "يجب إرسال عناصر المنتجات" });
@@ -400,6 +400,7 @@ exports.sendProductionRequests = asyncHandler(async (req, res) => {
     await ProductionHistoryModel.create({
       items: items.map(i => ({ product: i.productId, qty: i.qty })),
       action: "approve",
+      branch:branch,
       note: "Admin اعتمد العملية مباشرة",
     });
 

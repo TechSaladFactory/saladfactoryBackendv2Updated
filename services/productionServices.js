@@ -369,18 +369,25 @@ exports.getAllHistory = asyncHandler(async (req, res) => {
 
 
 // 🟢 إرسال طلب إنتاج (User أو Admin)
-exports.sendProductionRequests = asyncHandler(async (req, res) => {
-  const { items, isAdmin ,branch} = req.body;
 
+exports.sendProductionRequests = asyncHandler(async (req, res) => {
+  let { items = [], isAdmin = false, branch = null } = req.body;
+
+  // لو مفيش items خالص
   if (!Array.isArray(items) || items.length === 0) {
-    return res.status(400).json({ message: "يجب إرسال عناصر المنتجات" });
+    return res.status(200).json({
+      message: "لم يتم إرسال عناصر المنتجات (لكن العملية استمرت بدون خطأ)",
+      status: 200,
+    });
   }
 
-  // تحقق من وجود المنتجات
+  // ✅ تحقق من وجود المنتجات
   for (const { productId } of items) {
     const product = await productOPModel.findById(productId);
     if (!product) {
-      return res.status(400).json({ message: `المنتج غير موجود: ${productId}` });
+      return res
+        .status(400)
+        .json({ message: `المنتج غير موجود: ${productId}` });
     }
   }
 
@@ -398,9 +405,9 @@ exports.sendProductionRequests = asyncHandler(async (req, res) => {
 
     // ✅ حفظ العملية في History
     await ProductionHistoryModel.create({
-      items: items.map(i => ({ product: i.productId, qty: i.qty })),
+      items: items.map((i) => ({ product: i.productId, qty: i.qty })),
       action: "approve",
-      branch:branch,
+      branch: branch,
       note: "Admin اعتمد العملية مباشرة",
     });
 
@@ -419,19 +426,20 @@ exports.sendProductionRequests = asyncHandler(async (req, res) => {
     }
 
     await ProductionHistoryModel.create({
-      items: items.map(i => ({ product: i.productId, qty: i.qty })),
+      items: items.map((i) => ({ product: i.productId, qty: i.qty })),
       action: "request",
+      branch: branch,
       note: "تم إرسال طلب في انتظار الاعتماد",
     });
   }
 
   res.status(200).json({
-    message: isAdmin ? "تم الاعتماد وتسجيل العملية" : "تم إرسال الطلب وتسجيله في History",
+    message: isAdmin
+      ? "تم الاعتماد وتسجيل العملية"
+      : "تم إرسال الطلب وتسجيله في History",
     status: 200,
   });
 });
-
-
 // 🟢 اعتماد مجموعة من الطلبات
 exports.approveSelectedProductionRequests = asyncHandler(async (req, res) => {
   const { requestIds } = req.body;

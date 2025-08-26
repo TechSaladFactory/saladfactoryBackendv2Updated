@@ -370,23 +370,17 @@ exports.getAllHistory = asyncHandler(async (req, res) => {
 
 // 🟢 إرسال طلب إنتاج (User أو Admin)
 exports.sendProductionRequests = asyncHandler(async (req, res) => {
-  let { items = [], isAdmin = false, branch } = req.body;
+  const { items, isAdmin ,branch} = req.body;
 
-  // لو مفيش items خالص
   if (!Array.isArray(items) || items.length === 0) {
-    return res.status(200).json({
-      message: "لم يتم إرسال عناصر المنتجات (لكن العملية استمرت بدون خطأ)",
-      status: 200,
-    });
+    return res.status(400).json({ message: "يجب إرسال عناصر المنتجات" });
   }
 
-  // ✅ تحقق من وجود المنتجات
+  // تحقق من وجود المنتجات
   for (const { productId } of items) {
     const product = await productOPModel.findById(productId);
     if (!product) {
-      return res
-        .status(400)
-        .json({ message: `المنتج غير موجود: ${productId}` });
+      return res.status(400).json({ message: `المنتج غير موجود: ${productId}` });
     }
   }
 
@@ -402,15 +396,13 @@ exports.sendProductionRequests = asyncHandler(async (req, res) => {
       }
     }
 
-    // ✅ تجهيز بيانات History
-    const historyData = {
-      items: items.map((i) => ({ product: i.productId, qty: i.qty })),
+    // ✅ حفظ العملية في History
+    await ProductionHistoryModel.create({
+      items: items.map(i => ({ product: i.productId, qty: i.qty })),
       action: "approve",
+      branch:branch,
       note: "Admin اعتمد العملية مباشرة",
-    };
-    if (branch) historyData.branch = branch; // 👈 إضافة branch فقط لو مبعوت
-
-    await ProductionHistoryModel.create(historyData);
+    });
 
     // ✅ تسجيل Requests كمعتمد
     for (const { productId, qty } of items) {
@@ -426,24 +418,20 @@ exports.sendProductionRequests = asyncHandler(async (req, res) => {
       await ProductionRequestModel.create({ product: productId, qty });
     }
 
-    // ✅ تجهيز بيانات History
-    const historyData = {
-      items: items.map((i) => ({ product: i.productId, qty: i.qty })),
+    await ProductionHistoryModel.create({
+      items: items.map(i => ({ product: i.productId, qty: i.qty })),
       action: "request",
       note: "تم إرسال طلب في انتظار الاعتماد",
-    };
-    if (branch) historyData.branch = branch; // 👈 إضافة branch فقط لو مبعوت
-
-    await ProductionHistoryModel.create(historyData);
+    });
   }
 
   res.status(200).json({
-    message: isAdmin
-      ? "تم الاعتماد وتسجيل العملية"
-      : "تم إرسال الطلب وتسجيله في History",
+    message: isAdmin ? "تم الاعتماد وتسجيل العملية" : "تم إرسال الطلب وتسجيله في History",
     status: 200,
   });
 });
+
+
 // 🟢 اعتماد مجموعة من الطلبات
 exports.approveSelectedProductionRequests = asyncHandler(async (req, res) => {
   const { requestIds } = req.body;

@@ -370,7 +370,7 @@ exports.getAllHistory = asyncHandler(async (req, res) => {
 
 // 🟢 إرسال طلب إنتاج (User أو Admin)
 exports.sendProductionRequests = asyncHandler(async (req, res) => {
-  const { items, isAdmin ,branch} = req.body;
+  const { items, isAdmin ,branch , isSend} = req.body;
 
   if (!Array.isArray(items) || items.length === 0) {
     return res.status(400).json({ message: "يجب إرسال عناصر المنتجات" });
@@ -401,6 +401,7 @@ exports.sendProductionRequests = asyncHandler(async (req, res) => {
       items: items.map(i => ({ product: i.productId, qty: i.qty })),
       action: "approve",
       branch:branch,
+      isSend,
       note: "Admin اعتمد العملية مباشرة",
     });
 

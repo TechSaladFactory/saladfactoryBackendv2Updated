@@ -6,7 +6,8 @@ const {
   addproductOP,
   getproductOP,
   getrelatedMainproductOP,
-  getrealtedOrderproductOPion
+  getrealtedOrderproductOPion,
+  updateProductIsSupply
 } = require("../services/productOPServices");
 
 // Validators
@@ -27,5 +28,7 @@ router
   .get(getSpecialproductOPByidValidators, getSpecialproductOPByid)
   .put(updateproductOPByIDValidators, updateproductOPByID)
   .delete(deleteproductOPByIDValidators, deleteproductOPByID);
+  router.route("/Issupply/:id").put(updateProductIsSupply);
+
 router.route("/:id/getrelatedMainproductOP").get(getrelatedMainproductOP)
 module.exports = router;

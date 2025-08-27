@@ -23,6 +23,7 @@ const  BranchRoutes = require("./routes/branchRoutes");
 const  OrderProductionRoutes = require("./routes/orderProductionRoutes");
 const  MainProductOPRoutes = require("./routes/mainProductOPRoutes");
 const  ProductionRoutes = require("./routes/productionRoutes");
+const  orderSupplyRoutes = require("./routes/orderSupplyRoutes");
 
 const cors = require("cors");
 var compression = require("compression");
@@ -64,6 +65,7 @@ app.use(`${basepathApi}/fatwra`, FatwraRoutes);
 app.use(`${basepathApi}/branch`, BranchRoutes);
 app.use(`${basepathApi}/orderProduction`, OrderProductionRoutes);
 app.use(`${basepathApi}/Production`,ProductionRoutes );
+app.use(`${basepathApi}/orderSupply`,orderSupplyRoutes );
 
 
 

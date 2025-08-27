@@ -223,3 +223,27 @@ exports.getrealtedOrderproductOPion = asyncHandler(async (req, res) => {
     status: 200,
   });
 });
+
+
+
+exports.updateProductIsSupply = asyncHandler(async (req, res) => {
+  const { isorderSupply } = req.body; // true or false
+
+  const product = await productOPModel.findByIdAndUpdate(
+    req.params.id,
+    { isorderSupply },
+    { new: true, runValidators: true }
+  );
+
+  if (!product) {
+    return res.status(404).json({
+      status: "fail",
+      message: "Product not found",
+    });
+  }
+
+  res.status(200).json({
+    status:isorderSupply==true? "Allowed to Show in OrderSupply":"Denied to Show in OrderSupply",
+    data: product,
+  });
+});

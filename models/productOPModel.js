@@ -36,6 +36,10 @@ const ProductOPShema = mongoose.Schema({
     isorderProduction:{
         type:Boolean,
         default:false
+    }, 
+    isorderSupply:{
+        type:Boolean,
+        default:false
     },
     slug: {
         type: String,

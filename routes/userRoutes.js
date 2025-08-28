@@ -19,6 +19,9 @@ const {
   canProduction,
   canOrderProduction,
   canReceiveProduct,
+  canSendProduct,
+  canSupplyProduct,
+  canDamagedProduct
 } = require("../services/userServices");
 //validator imports
 const {
@@ -54,11 +57,12 @@ router
 
     router.put("/canProduction/:id", canProduction);
 
-    // ✅ السماح أو منع المستخدم من "طلب إنتاج"
     router.put("/canOrderProduction/:id/", canOrderProduction);
     
-    // ✅ السماح أو منع المستخدم من "الاستلام"
     router.put("/canReceiveProduct/:id", canReceiveProduct);
+    router.put("/canSendProduct/:id", canSendProduct);
+    router.put("/canSupplyProduct/:id", canSupplyProduct);
+    router.put("/canDamagedProduct/:id", canDamagedProduct);
 
 module.exports = router;
 

@@ -46,7 +46,9 @@ const userSchema = new mongoose.Schema(
     canProduction: { type: Boolean, default: false },
     canOrderProduction: { type: Boolean, default: false },
     canReceive: { type: Boolean, default: false },
-
+    canSend: { type: Boolean, default: false },
+    canSupply: { type: Boolean, default: false },
+    
     role: {
       type: String,
       enum: ["user", "admin"],

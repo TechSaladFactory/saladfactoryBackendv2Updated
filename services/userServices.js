@@ -574,3 +574,87 @@ exports.canReceiveProduct = asyncHandler(async (req, res, next) => {
 
   res.status(200).json({ message: value, status: 200 });
 });
+
+// Per  Send
+exports.canSendProduct = asyncHandler(async (req, res, next) => {
+  const { canSend } = req.body;
+  const id = req.params.id;
+
+  if (canSend === undefined || canSend === "") {
+    return next(new ApiErrors(`canSend is required`, 400));
+  }
+
+  const userData = await UserModel.findOneAndUpdate(
+    { _id: id },
+    { canSend },
+    { new: true }
+  );
+
+  if (!userData) {
+    return next(new ApiErrors(`No user found for this UserID: ${id}!`, 404));
+  }
+
+  const value =
+  canSend === true
+      ? "The account can send products"
+      : "The account can't send products";
+
+  res.status(200).json({ message: value, status: 200 });
+});
+
+
+
+//Per Supply
+exports.canSupplyProduct = asyncHandler(async (req, res, next) => {
+  const { canSupply } = req.body;
+  const id = req.params.id;
+
+  if (canSupply === undefined || canSupply === "") {
+    return next(new ApiErrors(`canSupply is required`, 400));
+  }
+
+  const userData = await UserModel.findOneAndUpdate(
+    { _id: id },
+    { canSupply },
+    { new: true }
+  );
+
+  if (!userData) {
+    return next(new ApiErrors(`No user found for this UserID: ${id}!`, 404));
+  }
+
+  const value =
+  canSupply === true
+      ? "The account can supply products"
+      : "The account can't supply products";
+
+  res.status(200).json({ message: value, status: 200 });
+});
+
+
+//Per Damaged
+exports.canDamagedProduct = asyncHandler(async (req, res, next) => {
+  const { canDamaged } = req.body;
+  const id = req.params.id;
+
+  if (canDamaged === undefined || canDamaged === "") {
+    return next(new ApiErrors(`canDamaged is required`, 400));
+  }
+
+  const userData = await UserModel.findOneAndUpdate(
+    { _id: id },
+    { canDamaged },
+    { new: true }
+  );
+
+  if (!userData) {
+    return next(new ApiErrors(`No user found for this UserID: ${id}!`, 404));
+  }
+
+  const value =
+  canDamaged === true
+      ? "The account can Damaged products"
+      : "The account can't Damaged products";
+
+  res.status(200).json({ message: value, status: 200 });
+});

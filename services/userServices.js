@@ -172,6 +172,9 @@ exports.getUser = asyncHandler(async (req, res) => {
   const allUser = await UserModel.find({}).populate({
     path: "department",
     select: "name",
+  }).populate({
+    path: "branchesTo_OP",
+    select: "name",
   });
 
   res.status(200).json({

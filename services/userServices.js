@@ -658,3 +658,58 @@ exports.canDamagedProduct = asyncHandler(async (req, res, next) => {
 
   res.status(200).json({ message: value, status: 200 });
 });
+
+//Per Branch OP
+
+
+// ✅ إضافة فرع لمستخدم
+exports.addBranchToUserOP = asyncHandler(async (req, res, next) => {
+  const { userId, branchId } = req.body;
+
+  // التحقق من الإدخال
+  if (!userId || !branchId) {
+    return next(new ApiErrors(`userId and branchId are required!`, 400));
+  }
+
+  // تحديث المستخدم بإضافة الفرع
+  const user = await UserModel.findByIdAndUpdate(
+    userId,
+    { $addToSet: { branchesTo_OP: branchId } }, // يضيف الفرع لو مش موجود
+    { new: true }
+  ).populate("branchesTo_OP");
+
+  if (!user) {
+    return next(new ApiErrors(`User not found!`, 404));
+  }
+
+  res.status(200).json({
+    status: "success",
+    message: "Branch added successfully",
+    data: user,
+  });
+});
+
+exports.removeBranchFromUserOP = asyncHandler(async (req, res, next) => {
+  const { userId, branchId } = req.body;
+
+  if (!userId || !branchId) {
+    return next(new ApiErrors(`userId and branchId are required!`, 400));
+  }
+
+  const user = await UserModel.findByIdAndUpdate(
+    userId,
+    { $pull: { branchesTo_OP: branchId } }, // يحذف الفرع
+    { new: true }
+  ).populate("branchesTo_OP");
+
+  if (!user) {
+    return next(new ApiErrors(`User not found!`, 404));
+  }
+
+  res.status(200).json({
+    status: "success",
+    message: "Branch removed successfully",
+    data: user,
+  });
+});
+

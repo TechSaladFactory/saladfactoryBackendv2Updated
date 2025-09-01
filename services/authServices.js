@@ -345,3 +345,33 @@ exports.getuserDepartment = asyncHandler(async (req, res, next) => {
     data: userData.department,
   });
 });
+
+exports.getuserBranchOP = asyncHandler(async (req, res, next) => {
+  // تحقق من وجود Authorization header
+  const authHeader = req.headers.authorization;
+  if (!authHeader || !authHeader.startsWith("Bearer ")) {
+    return next(new ApiErrors(`Header must contain token!`, 404));
+  }
+
+  const token = authHeader.split(" ")[1];
+
+  let decoded;
+  try {
+    decoded = jwt.verify(token, process.env.JWT_SECRET_KEY);
+  } catch (err) {
+    return next(new ApiErrors(`Invalid token: ${err.message}`, 401));
+  }
+
+  // جلب بيانات المستخدم من قاعدة البيانات
+  const userData = await UserModel.findOne({ _id: decoded.id }).populate({
+    path: "branchesTo_OP",
+    select: "name",
+  });
+  if (!userData) {
+    return next(new ApiErrors(`User does not exist!`, 404));
+  }
+
+  res.status(200).json({
+    data: userData.branchesTo_OP,
+  });
+});

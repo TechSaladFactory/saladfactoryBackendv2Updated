@@ -38,6 +38,12 @@ const userSchema = new mongoose.Schema(
         required: true,
       },
     ],
+    branchesTo_OP: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Branch",
+      },
+    ],
     //permission
     canAddProduct: { type: Boolean, default: false },
     canRemoveProduct: { type: Boolean, default: false },

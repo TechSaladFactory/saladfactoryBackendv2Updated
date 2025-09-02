@@ -55,7 +55,10 @@ const userSchema = new mongoose.Schema(
     canSend: { type: Boolean, default: false },
     canSupply: { type: Boolean, default: false },
         canDamaged: { type: Boolean, default: false },
-
+  isOnline: {
+    type: Boolean,
+    default: false,
+  },
     role: {
       type: String,
       enum: ["user", "admin"],

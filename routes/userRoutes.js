@@ -23,6 +23,7 @@ const {
   canSupplyProduct,
   canDamagedProduct,
   addBranchToUserOP, removeBranchFromUserOP ,
+  addBranchToUserOS, removeBranchFromUserOS ,
 } = require("../services/userServices");
 //validator imports
 const {
@@ -72,6 +73,8 @@ router
 
     router.route("/add-branchOP").patch( addBranchToUserOP);
 router.route("/remove-branchOP").patch( removeBranchFromUserOP);
+router.route("/add-branchOS").patch( addBranchToUserOS);
+router.route("/remove-branchOS").patch( removeBranchFromUserOS);
 
 module.exports = router;
 

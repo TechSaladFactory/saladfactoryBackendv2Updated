@@ -17,7 +17,8 @@ const {
   updateuserdataSessioned,
   deleteLoggeduser,
   getuserDepartment,
-  getuserBranchOP
+  getuserBranchOP,
+  getuserBranchOS
 } = require("../services/authServices");
 
 const {
@@ -37,5 +38,6 @@ router.route("/user/department").get(getuserDepartment);
 router.route("/user").get(getuserValidators, getuser);
 
 router.route("/user/BranchOP").get( getuserBranchOP);
+router.route("/user/BranchOS").get( getuserBranchOS);
 
 module.exports = router;

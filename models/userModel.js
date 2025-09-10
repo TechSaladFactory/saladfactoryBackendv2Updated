@@ -43,6 +43,13 @@ const userSchema = new mongoose.Schema(
         type: mongoose.Schema.Types.ObjectId,
         ref: "Branch",
       },
+      
+    ], branchesTo_OS: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Branch",
+      },
+      
     ],
     //permission
     canAddProduct: { type: Boolean, default: false },
@@ -54,11 +61,10 @@ const userSchema = new mongoose.Schema(
     canReceive: { type: Boolean, default: false },
     canSend: { type: Boolean, default: false },
     canSupply: { type: Boolean, default: false },
-        canDamaged: { type: Boolean, default: false },
-  isOnline: {
-    type: Boolean,
-    default: false,
-  },
+    canDamaged: { type: Boolean, default: false },
+    isOnline: { type: Boolean, default: false },
+lastSeen: { type: Date }
+,
     role: {
       type: String,
       enum: ["user", "admin"],

@@ -46,7 +46,7 @@ const orderSupplyModelSchema = mongoose.Schema({
 // Auto-generate name if not provided
 orderSupplyModelSchema.pre("save", async function (next) {
   if (this.isNew && !this.name) {
-    const Model = mongoose.model("orderSupplyModel", orderSupplyModelSchema);
+    const Model = mongoose.model("orderSupply", orderSupplyModelSchema);
     const lastDoc = await Model.findOne().sort({ createdAt: -1 });
 
     let nextNumber = 1;

@@ -1,6 +1,5 @@
 const express = require("express");
 const http = require("http");
-const { Server } = require("socket.io");
 const morgan = require("morgan");
 const dotenv = require("dotenv");
 dotenv.config({ path: "config.env" });
@@ -30,13 +29,10 @@ const productionSupplyRoutes = require("./routes/productionSupplyRoutes");
 const cors = require("cors");
 const compression = require("compression");
 
-// 🟢 استدعاء موديل User علشان نعدل حالة الأونلاين
-const {UserModel} = require("./models/userModel");
-
 const app = express();
 const basepathApi = "/api";
 
-//Mode Connections
+// Mode Connections
 if (process.env.NODE_ENV === "development") {
   app.use(morgan("dev"));
   console.log(`Mode: ${process.env.NODE_ENV}`);
@@ -77,69 +73,10 @@ app.all("*", (req, res, next) => {
 });
 app.use(globalErorr);
 
-// 🟢 Socket.IO setup
+// تشغيل السيرفر
 const port = process.env.PORT || 5000;
 const server = http.createServer(app);
 
-const io = new Server(server, {
-  cors: {
-    origin: "*", // في البروडकشن حط دومينك بدل النجمة
-  },
-});
-
-// users memory map (اختياري)
-let onlineUsers = {};
-
-// عند الاتصال
-io.on("connection", (socket) => {
-  console.log("✅ مستخدم اتصل:", socket.id);
-
-  socket.on("setUserOnline", async (userId) => {
-    try {
-      onlineUsers[userId] = socket.id;
-
-      // حدّث الداتا بيز
-      await UserModel.findByIdAndUpdate(userId, { 
-        isOnline: true, 
-        lastSeen: new Date() 
-      });
-
-      // رجّع للي متصلين دلوقتي
-      const users = await UserModel.find({ isOnline: true }).select("name email");
-      io.emit("updateOnlineUsers", users);
-
-      console.log("📌 Online Users:", Object.keys(onlineUsers));
-    } catch (err) {
-      console.error("❌ Error setting user online:", err.message);
-    }
-  });
-
-  socket.on("disconnect", async () => {
-    const userId = Object.keys(onlineUsers).find(
-      (key) => onlineUsers[key] === socket.id
-    );
-
-    if (userId) {
-      delete onlineUsers[userId];
-
-      try {
-        await UserModel.findByIdAndUpdate(userId, { 
-          isOnline: false, 
-          lastSeen: new Date() 
-        });
-
-        const users = await UserModel.find({ isOnline: true }).select("name email");
-        io.emit("updateOnlineUsers", users);
-
-        console.log("❌ مستخدم خرج:", userId);
-      } catch (err) {
-        console.error("❌ Error setting user offline:", err.message);
-      }
-    }
-  });
-});
-
-// تشغيل السيرفر
 server.listen(port, () => {
   console.log(`🚀 Server running on port ${port}`);
 });

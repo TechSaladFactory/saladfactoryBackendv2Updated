@@ -17,7 +17,7 @@ const {
     getAllSendHistory,
     deleteSendHistoryById,
     updateSendHistory
-  } = require("../services/ProductionSupplyServices");
+  } = require("../services/productionSupplyServices");
 
 // المستخدم يرسل طلبات
 router.route("/request").post( sendProductionSupplyRequests);
@@ -51,3 +51,4 @@ router.route("/send/getAllSendHistory").get(getAllSendHistory);
 router.route("/send/deleteHistorysend/:id").delete(deleteSendHistoryById)
 router.route("/send/updateHistorysend/:id").put(updateSendHistory)
 module.exports = router;
+

@@ -29,6 +29,7 @@ const sendHistorySchema = new mongoose.Schema(
       default: "pending",
     },
     note: { type: String },
+    sendType: { type: String },
   },
   { timestamps: true }
 );

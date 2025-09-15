@@ -9,7 +9,7 @@ const productionRequestSchema = new mongoose.Schema({
   qty: {
     type: Number,
     required: true,
-    min: 1,
+    min: 0,
   },
   approved: {
     type: Boolean,

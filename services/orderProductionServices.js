@@ -173,3 +173,23 @@ exports.deleteOrderProduction = asyncHandler(async (req, res, next) => {
     data: deleted,
   });
 });
+
+
+exports.Issended=asyncHandler(async(req,res,next) => {
+const {id}=req.params
+const {isSend}=req.body
+ const orderData=await OrderProductionModel.findByIdAndUpdate({_id:id},{
+  isSend
+ },{new:true})
+
+if(!orderData){
+  return next(new ApiErrors(`No order production found for ID: ${id}`, 404));
+
+}
+const value =isSend==true?"isSended Success":"Not Sended"
+res.status(200).json({
+  message:value,
+  status:200
+})
+
+})

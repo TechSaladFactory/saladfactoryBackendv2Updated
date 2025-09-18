@@ -41,6 +41,10 @@ const orderProductionSchema = mongoose.Schema({
     type: String,
     default: "",
   },
+    isSend:{
+    type:Boolean,
+    default:false
+  }
 }, { timestamps: true });
 
 // Auto-generate name if not provided

@@ -7,6 +7,7 @@ const {
   createorderSupply,
   updateorderSupply,
   deleteorderSupply,
+  Issended
 } = require("../services/orderSupplyServices");
 
 const {
@@ -21,6 +22,7 @@ router.get("/getAll", getAllorderSupply);
 
 // Create new
 router.post("/add", createorderSupply);
+router.route("/isSended/:id").put(Issended)
 
 // Get specific by ID
 router.route("/:id").get(getorderSupplyModelByIdValidator, getorderSupplyById)

@@ -33,8 +33,10 @@ exports.getOrderProductionById = asyncHandler(async (req, res, next) => {
   const { id } = req.params;
 
   const order = await OrderProductionModel.findById(id)
-    .populate("branch", "name")
-    .populate("ProductOP", "name");
+   .populate({ path: "branch", select: "name" })
+     .populate({ path: "product", select: "name" })
+     .populate({ path: "packageUnit", select: "name" })
+    .populate({ path: "mainProductOP" ,select: "name" } );
 
   if (!order) {
     return next(new ApiErrors(`No order production found for ID: ${id}`, 404));

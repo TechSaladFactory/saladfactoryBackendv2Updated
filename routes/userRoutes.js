@@ -67,6 +67,8 @@ router
     router.put("/canSendProduct/:id", canSendProduct);
     router.put("/canSupplyProduct/:id", canSupplyProduct);
     router.put("/canDamagedProduct/:id", canDamagedProduct);
+    router.put("/canEditLastSupplyProduct/:id", canEditLastSupplyProduct);
+    router.put("/canEditLastOrderProductionProduct/:id", canEditLastOrderProductionProduct);
 
 
     //

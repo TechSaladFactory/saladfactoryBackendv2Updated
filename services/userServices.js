@@ -769,3 +769,58 @@ exports.removeBranchFromUserOS = asyncHandler(async (req, res, next) => {
 });
 
 
+//Per canEditLastSupply
+exports.canEditLastSupplyProduct = asyncHandler(async (req, res, next) => {
+  const { canEditLastSupply } = req.body;
+  const id = req.params.id;
+
+  if (canEditLastSupply === undefined || canEditLastSupply === "") {
+    return next(new ApiErrors(`canEditLastSupply is required`, 400));
+  }
+
+  const userData = await UserModel.findOneAndUpdate(
+    { _id: id },
+    { canEditLastSupply },
+    { new: true }
+  );
+
+  if (!userData) {
+    return next(new ApiErrors(`No user found for this UserID: ${id}!`, 404));
+  }
+
+  const value =
+  canEditLastSupply === true
+      ? "The account can canEditLastSupply products"
+      : "The account can't canEditLastSupply products";
+
+  res.status(200).json({ message: value, status: 200 });
+});
+
+
+//Per canEditLastSupply
+exports.canEditLastOrderProductionProduct = asyncHandler(async (req, res, next) => {
+  const { canEditLastOrderProduction } = req.body;
+  const id = req.params.id;
+
+  if (canEditLastOrderProduction === undefined || canEditLastOrderProduction === "") {
+    return next(new ApiErrors(`canEditLastOrderProduction is required`, 400));
+  }
+
+  const userData = await UserModel.findOneAndUpdate(
+    { _id: id },
+    { canEditLastOrderProduction },
+    { new: true }
+  );
+
+  if (!userData) {
+    return next(new ApiErrors(`No user found for this UserID: ${id}!`, 404));
+  }
+
+  const value =
+  canEditLastOrderProduction === true
+      ? "The account can canEditLastOrderProduction products"
+      : "The account can't canEditLastOrderProduction products";
+
+  res.status(200).json({ message: value, status: 200 });
+});
+

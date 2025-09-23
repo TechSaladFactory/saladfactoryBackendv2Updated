@@ -311,7 +311,11 @@ exports.getuser = asyncHandler(async (req, res, next) => {
 
     canSend:userData.canSend,
     canSupply:userData.canSupply,
-    canDamaged:  userData.canDamaged
+    canDamaged:  userData.canDamaged,
+
+        canEditLastSupply:  userData.canEditLastSupply,
+    canEditLastOrderProduction:  userData.canEditLastOrderProduction
+
 
   });
 });

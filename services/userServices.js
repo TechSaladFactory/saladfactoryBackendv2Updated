@@ -797,7 +797,7 @@ exports.canEditLastSupplyProduct = asyncHandler(async (req, res, next) => {
 });
 
 
-//Per canEditLastSupply
+//Per canEditLastOrderProduction
 exports.canEditLastOrderProductionProduct = asyncHandler(async (req, res, next) => {
   const { canEditLastOrderProduction } = req.body;
   const id = req.params.id;

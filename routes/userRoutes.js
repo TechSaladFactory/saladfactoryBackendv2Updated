@@ -24,6 +24,8 @@ const {
   canDamagedProduct,
   addBranchToUserOP, removeBranchFromUserOP ,
   addBranchToUserOS, removeBranchFromUserOS ,
+  canEditLastSupplyProduct,
+  canEditLastOrderProductionProduct
 } = require("../services/userServices");
 //validator imports
 const {

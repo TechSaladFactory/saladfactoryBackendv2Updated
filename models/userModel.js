@@ -62,6 +62,9 @@ const userSchema = new mongoose.Schema(
     canSend: { type: Boolean, default: false },
     canSupply: { type: Boolean, default: false },
     canDamaged: { type: Boolean, default: false },
+     canEditLastSupply: { type: Boolean, default: false },
+    canEditLastOrderProduction: { type: Boolean, default: false },
+
     isOnline: { type: Boolean, default: false },
 lastSeen: { type: Date }
 ,
